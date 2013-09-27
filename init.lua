@@ -1,5 +1,5 @@
 puzzles_list = {
-	{"nhvbugtree", "Nyanland BugTree", 544, 688},
+	{"nhvbugtree", "Nyanland BugTree", 64, 128, 16},
 }
 
 for _,puzzle in ipairs(puzzles_list) do
@@ -7,25 +7,23 @@ for _,puzzle in ipairs(puzzles_list) do
 	local puzzledsc = puzzle[2]
 	local puzzleszx = puzzle[3]
 	local puzzleszy = puzzle[4]
-	local xcnt = puzzleszx/16
-	local ycount = puzzleszy/16
+	local tile_scale = puzzle[5]
+	local framecountx = puzzleszx/tile_scale
+	local framecounty = puzzleszy/tile_scale
 
-
-	while ycount ~= 0 do
-		local texpos_y = ycount*16
-		local xcount = xcnt
-		while xcount ~= 0 do
-			local texture_pos = puzzleszx.."x"..puzzleszy..":"..xcount*16 ..","..texpos_y
-			local texture = "puzzles_invisible.png^[combine:"..texture_pos.."=puzzles_"..puzzlenam..".png"
+	for ycount = 0,framecounty-1,1 do
+		local texture_framed_y = "[verticalframe:"..framecounty..":"..ycount
+		for xcount = 0,framecountx-1,1 do
+			local texture_framed_x = "[verticalframe:"..framecountx..":"..xcount
+			local texture = "puzzles_"..puzzlenam..".png^"..texture_framed_y.."^[transformR90^"..texture_framed_x.."^[transformR270"
 
 			minetest.register_node("puzzles:"..puzzlenam.."_"..xcount.."_"..ycount, {
 				description = puzzledsc,
-				tiles = {texture, "default_wood.png", "default_wood.png"},
+				tiles = {texture, "default_wood.png",
+					texture.."^[transformR90", texture.."^[transformR270", texture.."^[transformFX^[transformFY", texture.."^[transformFY"},
 				groups = {dig_immediate=2},
 				sounds = default.node_sound_wood_defaults(),
 			})
-			xcount = xcount-1
 		end
-		ycount = ycount-1
 	end
 end
